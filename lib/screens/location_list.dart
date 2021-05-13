@@ -20,33 +20,44 @@ class _LocationListState extends State<LocationList> {
       body: StreamBuilder(
         stream: dbRef.orderByChild('dateTime').onValue,
         builder: (BuildContext context, AsyncSnapshot snapshot) {
+          Map allItems={};
           if (snapshot.hasData) {
             Event event = snapshot.data;
             DataSnapshot snap = event.snapshot;
-            Map allItems = snap.value;
-            // print(allItems);
+            allItems = snap.value;
+            print(allItems);
             List items =[];
-            for(Map each in allItems.values){
-              items.add({
-                'dateTime':each['dateTime'],
-                'latitude':each['latitude'],
-                'longitude':each['longitude'],
-              });
-            }
-            return ListView.builder(
+            if(allItems != null){
+              for(Map each in allItems.values){
+                items.add({
+                  'dateTime':each['dateTime'],
+                  'latitude':each['latitude'],
+                  'longitude':each['longitude'],
+                });
+              }
+              return ListView.builder(
                 itemCount: items.length,
                 itemBuilder: (context,index){
-                  return ListTile(
-                    title: Text('Lat: ${items[index]['latitude']} , Lng: ${items[index]['longitude']}'),
-                    subtitle: Text('time: ${items[index]['dateTime']} '),
-                    trailing: Text(' ${index+1} ',style: TextStyle(color: Colors.blue,fontSize: 20,),),
+                  return Card(
+                    elevation: 3,
+                    child: ListTile(
+                      title: Text('Lat: ${items[index]['latitude']} , Lng: ${items[index]['longitude']}'),
+                      subtitle: Text('time: ${items[index]['dateTime']} '),
+                      trailing: Text(' ${index+1} ',style: TextStyle(color: Colors.blue,fontSize: 20,),),
+                    ),
                   );
                 },
-            );
+              );
+            }else{
+              return Center(
+                child: Text('No Items Found'),
+              );
+            }
           }
-
           return Center(
-            child: Text('No Items Found'),
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.red,
+            ),
           );
         },
       ),

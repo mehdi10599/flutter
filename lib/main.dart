@@ -23,6 +23,7 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       routes: {
         HomeScreen.id : (context)=>HomeScreen(),
         LocationList.id : (context)=>LocationList(),

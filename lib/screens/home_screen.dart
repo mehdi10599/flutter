@@ -7,6 +7,7 @@ import 'package:working_with_map/screens/location_list.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home_screen';
+
   const HomeScreen({Key key}) : super(key: key);
 
   @override
@@ -15,9 +16,11 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   LatLng myCurrentLocation = LatLng(51.5, -0.08);
-  DatabaseReference dbRef = FirebaseDatabase.instance.reference().child('Locations');
+  DatabaseReference dbRef =
+      FirebaseDatabase.instance.reference().child('Locations');
 
   MapController mapController;
+  Position position;
 
   @override
   void initState() {
@@ -26,49 +29,80 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        elevation: 5,
+        backgroundColor: Colors.white,
+        child: IconButton(
+          icon: Icon(
+            Icons.my_location_sharp,
+            color: Colors.black,
+          ),
+          onPressed: () async {
+            position = await _determinePosition();
+            myCurrentLocation = LatLng(position.latitude, position.longitude);
+            mapController.move(myCurrentLocation, 14);
+            setState(() {});
+          },
+          color: Colors.white,
+        ),
+      ),
       appBar: AppBar(
         title: Text('Location'),
-        leading:
-        IconButton(
+        leading: IconButton(
           icon: Icon(Icons.list),
           onPressed: () {
             Navigator.pushNamed(context, LocationList.id);
           },
           color: Colors.white,
         ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.my_location_sharp),
-            onPressed: () async{
-              Position position = await _determinePosition();
-              myCurrentLocation = LatLng(position.latitude,position.longitude);
-              mapController.move(myCurrentLocation, 16);
-              uploadToDatabase(position.latitude.toString(),position.longitude.toString());
-              setState(() {});
-            },
-            color: Colors.white,
+        actions: [],
+      ),
+      body: Stack(
+        children: [
+          customMap(),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                width: 55,
+                height: 55,
+                margin: EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    uploadToDatabase(position.latitude.toString(), position.longitude.toString());
+                  },
+                  child: Icon(Icons.save_outlined,color: Colors.black,),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                    ),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(35.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
-      body: customMap(),
     );
   }
 
-  uploadToDatabase(String latitude,String longitude) async{
+  uploadToDatabase(String latitude, String longitude) async {
     DateTime dateTime = DateTime.now();
-    String dateTimeStr = dateTime.toString().substring(0,19);
+    String dateTimeStr = dateTime.toString().substring(0, 19);
     await dbRef.child(dateTimeStr).set({
-      'dateTime':dateTimeStr,
-      'latitude':latitude,
-      'longitude':longitude,
+      'dateTime': dateTimeStr,
+      'latitude': latitude,
+      'longitude': longitude,
     });
   }
-
 
   Widget customMap() {
     return FlutterMap(
@@ -85,19 +119,19 @@ class _HomeScreenState extends State<HomeScreen> {
         MarkerLayerOptions(
           markers: [
             Marker(
-              width: 180.0,
-              height: 100.0,
+              width: 45.0,
+              height: 45.0,
               point: myCurrentLocation,
               builder: (ctx) => Container(
                 child: Column(
                   children: [
                     Icon(
                       Icons.location_on_outlined,
-                      color: Colors.blue,
-                      size: 55,
+                      color: Colors.deepPurpleAccent,
+                      size: 45,
                     ),
-                    Text('latitude: ${myCurrentLocation.latitude} '),
-                    Text('longitude: ${myCurrentLocation.longitude} '),
+                    // Text('latitude: ${myCurrentLocation.latitude} '),
+                    // Text('longitude: ${myCurrentLocation.longitude} '),
                   ],
                 ),
               ),
