@@ -21,6 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   MapController mapController;
   Position position;
+  double initZoom = 14.0;
 
   @override
   void initState() {
@@ -43,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: () async {
             position = await _determinePosition();
             myCurrentLocation = LatLng(position.latitude, position.longitude);
-            mapController.move(myCurrentLocation, 14);
+            mapController.move(myCurrentLocation, initZoom);
             setState(() {});
           },
           color: Colors.white,
@@ -58,7 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           color: Colors.white,
         ),
-        actions: [],
       ),
       body: Stack(
         children: [
@@ -75,6 +75,48 @@ class _HomeScreenState extends State<HomeScreen> {
                     uploadToDatabase(position.latitude.toString(), position.longitude.toString());
                   },
                   child: Icon(Icons.save_outlined,color: Colors.black,),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                    ),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(35.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 55,
+                height: 55,
+                margin: EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    zoomIn();
+                  },
+                  child: Icon(Icons.zoom_in,color: Colors.black,),
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Colors.white,
+                    ),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(35.0),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Container(
+                width: 55,
+                height: 55,
+                margin: EdgeInsets.all(20),
+                child: ElevatedButton(
+                  onPressed: () {
+                    zoomOut();
+                  },
+                  child: Icon(Icons.zoom_out,color: Colors.black,),
                   style: ButtonStyle(
                     backgroundColor: MaterialStateProperty.all<Color>(
                         Colors.white,
@@ -179,5 +221,17 @@ class _HomeScreenState extends State<HomeScreen> {
     return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
     );
+  }
+
+  void zoomIn() {
+    initZoom++;
+    mapController.move(myCurrentLocation, initZoom);
+    setState(() { });
+  }
+
+  void zoomOut() {
+    initZoom--;
+    mapController.move(myCurrentLocation, initZoom);
+    setState(() { });
   }
 }
